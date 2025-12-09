@@ -13,7 +13,7 @@
 </head>
 <body>
   <div class="container">
-    <h1 class="title">Calculator</h1>
+    <h1 class="title">Maria's Calculator</h1>
     
     <nav class="breadcrumb">
       <button class="breadcrumb-btn active" data-mode="standard">
@@ -26,82 +26,86 @@
       </button>
     </nav>
 
-    <div id="calculator" data-mode="standard">
-      <input type="text" id="display" disabled />
+    <div class="calculator-wrapper">
+      <span class="flower-left">🌼</span>
+      <div id="calculator" data-mode="standard">
+        <input type="text" id="display" disabled />
 
-      <div id="buttons" class="standard-mode">
-        <button>7</button>
-        <button>8</button>
-        <button>9</button>
-        <button class="operator">/</button>
+        <div id="buttons" class="standard-mode">
+          <button>7</button>
+          <button>8</button>
+          <button>9</button>
+          <button class="operator">/</button>
 
-        <button>4</button>
-        <button>5</button>
-        <button>6</button>
-        <button class="operator">*</button>
+          <button>4</button>
+          <button>5</button>
+          <button>6</button>
+          <button class="operator">*</button>
 
-        <button>1</button>
-        <button>2</button>
-        <button>3</button>
-        <button class="operator">-</button>
+          <button>1</button>
+          <button>2</button>
+          <button>3</button>
+          <button class="operator">-</button>
 
-        <button>0</button>
-        <button>.</button>
-        <button class="equals">=</button>
-        <button class="operator">+</button>
+          <button>0</button>
+          <button>.</button>
+          <button class="equals">=</button>
+          <button class="operator">+</button>
 
-        <button class="clear">C</button>
-        <button class="clear">CE</button>
-        <button class="operator">%</button>
-        <button class="operator">√</button>
+          <button class="clear">C</button>
+          <button class="clear">CE</button>
+          <button class="operator">%</button>
+          <button class="operator">√</button>
+        </div>
+
+        <div id="buttons" class="scientific-mode" style="display: none;">
+          <button class="function">sin</button>
+          <button class="function">cos</button>
+          <button class="function">tan</button>
+          <button class="operator">/</button>
+
+          <button class="function">log</button>
+          <button class="function">ln</button>
+          <button class="function">x²</button>
+          <button class="operator">*</button>
+
+          <button class="function">x^y</button>
+          <button class="function">√</button>
+          <button class="function">∛</button>
+          <button class="operator">-</button>
+
+          <button class="function">π</button>
+          <button class="function">e</button>
+          <button class="function">(</button>
+          <button class="function">)</button>
+
+          <button>7</button>
+          <button>8</button>
+          <button>9</button>
+          <button class="operator">+</button>
+
+          <button>4</button>
+          <button>5</button>
+          <button>6</button>
+          <button class="function">1/x</button>
+
+          <button>1</button>
+          <button>2</button>
+          <button>3</button>
+          <button class="function">!</button>
+
+          <button>0</button>
+          <button>.</button>
+          <button class="equals">=</button>
+          <button class="clear">C</button>
+
+          <button class="clear">CE</button>
+          <button class="operator">%</button>
+          <button class="function">deg</button>
+          <button class="function">rad</button>
+        </div>
       </div>
-
-      <div id="buttons" class="scientific-mode" style="display: none;">
-        <button class="function">sin</button>
-        <button class="function">cos</button>
-        <button class="function">tan</button>
-        <button class="operator">/</button>
-
-        <button class="function">log</button>
-        <button class="function">ln</button>
-        <button class="function">x²</button>
-        <button class="operator">*</button>
-
-        <button class="function">x^y</button>
-        <button class="function">√</button>
-        <button class="function">∛</button>
-        <button class="operator">-</button>
-
-        <button class="function">π</button>
-        <button class="function">e</button>
-        <button class="function">(</button>
-        <button class="function">)</button>
-
-        <button>7</button>
-        <button>8</button>
-        <button>9</button>
-        <button class="operator">+</button>
-
-        <button>4</button>
-        <button>5</button>
-        <button>6</button>
-        <button class="function">1/x</button>
-
-        <button>1</button>
-        <button>2</button>
-        <button>3</button>
-        <button class="function">!</button>
-
-        <button>0</button>
-        <button>.</button>
-        <button class="equals">=</button>
-        <button class="clear">C</button>
-
-        <button class="clear">CE</button>
-        <button class="operator">%</button>
-        <button class="function">deg</button>
-        <button class="function">rad</button>
-      </div>
+      <span class="flower-right">🌼</span>
     </div>
   </div>
 </body>
