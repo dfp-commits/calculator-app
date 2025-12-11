@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="styles.css">
 
   <!-- Link JS -->
-  <<script type="module" src="script.js" defer></script>  >
+  <script type="module" src="script.js" defer></script>
 </head>
 <body>
   <button id="settings-btn" class="settings-button">Settings</button>
@@ -38,6 +38,7 @@
 
     <button id="save-settings-btn" class="save-btn">Save Settings</button>
   </div>
+
   <div class="container">
     <h1 class="title">Maria's Calculator</h1>
     
@@ -57,7 +58,8 @@
       <div id="calculator" data-mode="standard">
         <input type="text" id="display" disabled />
 
-        <div id="buttons" class="standard-mode">
+        <!-- Standard Buttons -->
+        <div class="standard-mode">
           <button>7</button>
           <button>8</button>
           <button>9</button>
@@ -84,7 +86,8 @@
           <button class="operator">√</button>
         </div>
 
-        <div id="buttons" class="scientific-mode" style="display: none;">
+        <!-- Scientific Buttons -->
+        <div class="scientific-mode" style="display: none;">
           <button class="function">sin</button>
           <button class="function">cos</button>
           <button class="function">tan</button>
