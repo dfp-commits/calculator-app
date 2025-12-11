@@ -9,7 +9,7 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #000;
   color: white;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   padding: 20px;
@@ -180,14 +180,27 @@ button.clear:hover {
   position: relative;
 }
 
-/* Flower styles - same size as button font (16px) */
+/* Flower styles - oversized icons anchored near the top corners */
 .flower-left,
 .flower-right {
-  font-size: 16px;
+  font-size: 48px;
   line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: absolute;
+  top: -10px;
+  width: 48px;
+  height: 48px;
+  z-index: 2; /* keep flowers in front of calculator */
+}
+
+.flower-left {
+  left: -30px;
+}
+
+.flower-right {
+  right: -30px;
 }
 
 @media (max-width: 480px) {
@@ -197,11 +210,6 @@ button.clear:hover {
   
   .calculator-wrapper {
     gap: 10px;
-  }
-  
-  .flower-left,
-  .flower-right {
-    font-size: 14px; /* Match button font size in mobile */
   }
   
   #calculator {
