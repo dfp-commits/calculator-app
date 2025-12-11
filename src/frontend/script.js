@@ -1,13 +1,7 @@
-
+// Import utils for config & logging
 import { logEvent, getConfig, updateConfig } from "../utils/datastore.js";
 
-// ...rest of your calculator code
-import { 
-  logEvent, 
-  getConfig, 
-  updateConfig 
-} from "../utils/datastore.js";
-
+// DOM elements
 const display = document.getElementById('display');
 const calculator = document.getElementById('calculator');
 const breadcrumbButtons = document.querySelectorAll('.breadcrumb-btn');
@@ -22,12 +16,11 @@ let config = await getConfig();
 angleMode = config.angleMode || 'deg';
 let initialMode = config.calculatorMode || 'standard';
 
+// Apply initial UI state after DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
-  // Apply UI active state
   const targetBtn = document.querySelector(`.breadcrumb-btn[data-mode="${initialMode}"]`);
   if (targetBtn) targetBtn.classList.add("active");
 
-  // Apply visible calculator mode
   if (initialMode === "standard") {
     standardButtons.style.display = "grid";
     scientificButtons.style.display = "none";
@@ -67,10 +60,9 @@ breadcrumbButtons.forEach(btn => {
   });
 });
 
-// Button event handlers
-function setupButtons(buttonContainer) {
-  const buttons = buttonContainer.querySelectorAll('button');
-
+// Button handlers
+function setupButtons(container) {
+  const buttons = container.querySelectorAll('button');
   buttons.forEach(button => {
     button.addEventListener('click', async () => {
       const value = button.textContent;
@@ -79,137 +71,54 @@ function setupButtons(buttonContainer) {
       const isClear = button.classList.contains('clear');
       const isEquals = button.classList.contains('equals');
 
-      if (isClear) {
-        if (value === 'C') {
-          current = '';
-          display.value = '';
-        } else if (value === 'CE') {
-          current = current.slice(0, -1);
+      try {
+        if (isClear) {
+          if (value === 'C') current = '';
+          else if (value === 'CE') current = current.slice(0, -1);
           display.value = current;
-        }
-        await logEvent({ type: 'clear', value });
-      } else if (isEquals) {
-        try {
+          await logEvent({ type: 'clear', value });
+
+        } else if (isEquals) {
           current = evaluateExpression(current);
           display.value = current;
           await logEvent({ type: 'calculate', expression: current });
-        } catch (e) {
-          current = 'Error';
+
+        } else if (isFunction) {
+          handleFunction(value);
+        } else {
+          current += value;
           display.value = current;
-          await logEvent({ type: 'error', message: e.message });
+          await logEvent({ type: 'input', value });
         }
-      } else if (isFunction) {
-        handleFunction(value);
-      } else {
-        current += value;
+      } catch (e) {
+        current = 'Error';
         display.value = current;
-        await logEvent({ type: 'input', value });
+        await logEvent({ type: 'error', message: e.message });
       }
     });
   });
 }
 
+// Handle scientific functions
 function handleFunction(func) {
   try {
     switch(func) {
-      case 'sin': {
-        const sinValue = parseFloat(current) || 0;
-        const sinResult = angleMode === 'deg' 
-          ? Math.sin(sinValue * Math.PI / 180) 
-          : Math.sin(sinValue);
-        current = sinResult.toString();
-        display.value = current;
-        break;
-      }
-      case 'cos': {
-        const cosValue = parseFloat(current) || 0;
-        const cosResult = angleMode === 'deg' 
-          ? Math.cos(cosValue * Math.PI / 180) 
-          : Math.cos(cosValue);
-        current = cosResult.toString();
-        display.value = current;
-        break;
-      }
-      case 'tan': {
-        const tanValue = parseFloat(current) || 0;
-        const tanResult = angleMode === 'deg' 
-          ? Math.tan(tanValue * Math.PI / 180) 
-          : Math.tan(tanValue);
-        current = tanResult.toString();
-        display.value = current;
-        break;
-      }
-      case 'log': {
-        const logValue = parseFloat(current) || 1;
-        current = Math.log10(logValue).toString();
-        display.value = current;
-        break;
-      }
-      case 'ln': {
-        const lnValue = parseFloat(current) || 1;
-        current = Math.log(lnValue).toString();
-        display.value = current;
-        break;
-      }
-      case 'x²': {
-        const squareValue = parseFloat(current) || 0;
-        current = (squareValue * squareValue).toString();
-        display.value = current;
-        break;
-      }
-      case 'x^y':
-        current += '^';
-        display.value = current;
-        break;
-      case '√': {
-        const sqrtValue = parseFloat(current) || 0;
-        current = Math.sqrt(sqrtValue).toString();
-        display.value = current;
-        break;
-      }
-      case '∛': {
-        const cbrtValue = parseFloat(current) || 0;
-        current = Math.cbrt(cbrtValue).toString();
-        display.value = current;
-        break;
-      }
-      case 'π':
-        current += Math.PI.toString();
-        display.value = current;
-        break;
-      case 'e':
-        current += Math.E.toString();
-        display.value = current;
-        break;
-      case '1/x': {
-        const invValue = parseFloat(current) || 1;
-        current = (1 / invValue).toString();
-        display.value = current;
-        break;
-      }
-      case '!': {
-        const factValue = parseInt(current) || 0;
-        if (factValue < 0 || factValue > 170) {
-          current = 'Error';
-        } else {
-          current = factorial(factValue).toString();
-        }
-        display.value = current;
-        break;
-      }
-      case 'deg':
-        angleMode = 'deg';
-        config.angleMode = 'deg';
-        updateConfig(config);
-        break;
-      case 'rad':
-        angleMode = 'rad';
-        config.angleMode = 'rad';
-        updateConfig(config);
-        break;
-      default:
-        current += func;
-        display.value = current;
+      case 'sin': applyTrig(Math.sin); break;
+      case 'cos': applyTrig(Math.cos); break;
+      case 'tan': applyTrig(Math.tan); break;
+      case 'log': applyMath(Math.log10); break;
+      case 'ln': applyMath(Math.log); break;
+      case 'x²': applyMath(x => x*x); break;
+      case 'x^y': current += '^'; display.value = current; break;
+      case '√': applyMath(Math.sqrt); break;
+      case '∛': applyMath(Math.cbrt); break;
+      case 'π': current += Math.PI; display.value = current; break;
+      case 'e': current += Math.E; display.value = current; break;
+      case '1/x': applyMath(x => 1/x); break;
+      case '!': current = factorial(parseInt(current) || 0); display.value = current; break;
+      case 'deg': angleMode = 'deg'; config.angleMode = 'deg'; updateConfig(config); break;
+      case 'rad': angleMode = 'rad'; config.angleMode = 'rad'; updateConfig(config); break;
+      default: current += func; display.value = current;
     }
   } catch (e) {
     current = 'Error';
@@ -218,21 +127,36 @@ function handleFunction(func) {
   }
 }
 
-function factorial(n) {
-  if (n === 0 || n === 1) return 1;
-  let result = 1;
-  for (let i = 2; i <= n; i++) {
-    result *= i;
-  }
-  return result;
+// Helper for trig functions with angle mode
+function applyTrig(fn) {
+  const val = parseFloat(current) || 0;
+  const result = angleMode === 'deg' ? fn(val * Math.PI / 180) : fn(val);
+  current = result.toString();
+  display.value = current;
 }
 
+// Helper for math functions
+function applyMath(fn) {
+  const val = parseFloat(current) || 0;
+  current = fn(val).toString();
+  display.value = current;
+}
+
+// Factorial
+function factorial(n) {
+  if (n < 0 || n > 170) return 'Error';
+  let res = 1;
+  for (let i=2;i<=n;i++) res *= i;
+  return res.toString();
+}
+
+// Evaluate expression
 function evaluateExpression(expr) {
   expr = expr.replace(/\^/g, '**');
-  expr = expr.replace(/√(\d+\.?\d*)/g, (match, num) => Math.sqrt(parseFloat(num)));
+  expr = expr.replace(/√(\d+\.?\d*)/g, (m, n) => Math.sqrt(parseFloat(n)));
   return Function('"use strict"; return (' + expr + ')')();
 }
 
-// Setup both button containers
+// Initialize buttons
 setupButtons(standardButtons);
 setupButtons(scientificButtons);
