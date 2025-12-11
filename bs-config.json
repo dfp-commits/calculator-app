@@ -1,0 +1,9 @@
+{
+    "server": {
+      "baseDir": "./src/frontend",
+      "files": [
+        "./**/*.{html,htm,css,js}"
+      ]
+    }
+  }
+  
