@@ -226,3 +226,49 @@ button.clear:hover {
     font-size: 0.9rem;
   }
 }
+.settings-button {
+  padding: 10px 20px;
+  background-color: #2c3e50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.settings-panel {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  width: 250px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  margin-bottom: 20px;
+}
+
+.settings-panel.hidden {
+  display: none;
+}
+
+.settings-panel label {
+  display: block;
+  margin-top: 10px;
+}
+
+.save-btn {
+  margin-top: 15px;
+  padding: 10px;
+  background: green;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+body[data-theme="dark"] {
+  background-color: #2b2b2b;
+  color: white;
+}
+
+body[data-theme="contrast"] {
+  background-color: black;
+  color: yellow;
+}
