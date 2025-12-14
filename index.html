@@ -26,6 +26,8 @@
       </button>
     </nav>
 
+    <button class="history-btn" id="historyBtn" title="View calculation history">📜 History</button>
+    
     <div class="calculator-wrapper">
       <span class="flower-left">🌼</span>
       <div id="calculator" data-mode="standard">
@@ -106,6 +108,19 @@
         </div>
       </div>
       <span class="flower-right">🌼</span>
+    </div>
+
+    <!-- History Modal -->
+    <div class="history-modal" id="historyModal">
+      <div class="history-content">
+        <div class="history-header">
+          <h2>Calculation History</h2>
+          <button class="history-close" id="historyClose">&times;</button>
+        </div>
+        <div class="history-list" id="historyList">
+          <p class="history-empty">No calculations yet</p>
+        </div>
+      </div>
     </div>
   </div>
 </body>

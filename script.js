@@ -6,6 +6,7 @@ const scientificButtons = document.querySelector('.scientific-mode');
 
 let current = '';
 let angleMode = 'deg'; // 'deg' or 'rad'
+let calculationHistory = []; // Array to store last 5 calculations
 
 // Breadcrumb navigation
 breadcrumbButtons.forEach(btn => {
@@ -55,8 +56,13 @@ function setupButtons(buttonContainer) {
         }
       } else if (isEquals) {
         try {
-          current = evaluateExpression(current);
+          const expression = current;
+          const result = evaluateExpression(current);
+          current = result.toString();
           display.value = current;
+          
+          // Add to history (store expression and result)
+          addToHistory(expression, result.toString());
         } catch (e) {
           current = 'Error';
           display.value = current;
@@ -73,45 +79,60 @@ function setupButtons(buttonContainer) {
 
 function handleFunction(func) {
   try {
+    const exprBefore = current || '0';
+    let result = '';
+    
     switch(func) {
       case 'sin':
         const sinValue = parseFloat(current) || 0;
         const sinResult = angleMode === 'deg' 
           ? Math.sin(sinValue * Math.PI / 180) 
           : Math.sin(sinValue);
-        current = sinResult.toString();
+        result = sinResult.toString();
+        current = result;
         display.value = current;
+        addToHistory(`sin(${sinValue}${angleMode === 'deg' ? '°' : ''})`, result);
         break;
       case 'cos':
         const cosValue = parseFloat(current) || 0;
         const cosResult = angleMode === 'deg' 
           ? Math.cos(cosValue * Math.PI / 180) 
           : Math.cos(cosValue);
-        current = cosResult.toString();
+        result = cosResult.toString();
+        current = result;
         display.value = current;
+        addToHistory(`cos(${cosValue}${angleMode === 'deg' ? '°' : ''})`, result);
         break;
       case 'tan':
         const tanValue = parseFloat(current) || 0;
         const tanResult = angleMode === 'deg' 
           ? Math.tan(tanValue * Math.PI / 180) 
           : Math.tan(tanValue);
-        current = tanResult.toString();
+        result = tanResult.toString();
+        current = result;
         display.value = current;
+        addToHistory(`tan(${tanValue}${angleMode === 'deg' ? '°' : ''})`, result);
         break;
       case 'log':
         const logValue = parseFloat(current) || 1;
-        current = Math.log10(logValue).toString();
+        result = Math.log10(logValue).toString();
+        current = result;
         display.value = current;
+        addToHistory(`log(${logValue})`, result);
         break;
       case 'ln':
         const lnValue = parseFloat(current) || 1;
-        current = Math.log(lnValue).toString();
+        result = Math.log(lnValue).toString();
+        current = result;
         display.value = current;
+        addToHistory(`ln(${lnValue})`, result);
         break;
       case 'x²':
         const squareValue = parseFloat(current) || 0;
-        current = (squareValue * squareValue).toString();
+        result = (squareValue * squareValue).toString();
+        current = result;
         display.value = current;
+        addToHistory(`${squareValue}²`, result);
         break;
       case 'x^y':
         current += '^';
@@ -119,13 +140,17 @@ function handleFunction(func) {
         break;
       case '√':
         const sqrtValue = parseFloat(current) || 0;
-        current = Math.sqrt(sqrtValue).toString();
+        result = Math.sqrt(sqrtValue).toString();
+        current = result;
         display.value = current;
+        addToHistory(`√${sqrtValue}`, result);
         break;
       case '∛':
         const cbrtValue = parseFloat(current) || 0;
-        current = Math.cbrt(cbrtValue).toString();
+        result = Math.cbrt(cbrtValue).toString();
+        current = result;
         display.value = current;
+        addToHistory(`∛${cbrtValue}`, result);
         break;
       case 'π':
         current += Math.PI.toString();
@@ -137,17 +162,22 @@ function handleFunction(func) {
         break;
       case '1/x':
         const invValue = parseFloat(current) || 1;
-        current = (1 / invValue).toString();
+        result = (1 / invValue).toString();
+        current = result;
         display.value = current;
+        addToHistory(`1/${invValue}`, result);
         break;
       case '!':
         const factValue = parseInt(current) || 0;
         if (factValue < 0 || factValue > 170) {
           current = 'Error';
+          display.value = current;
         } else {
-          current = factorial(factValue).toString();
+          result = factorial(factValue).toString();
+          current = result;
+          display.value = current;
+          addToHistory(`${factValue}!`, result);
         }
-        display.value = current;
         break;
       case 'deg':
         angleMode = 'deg';
@@ -188,3 +218,91 @@ function evaluateExpression(expr) {
 // Setup both button containers
 setupButtons(standardButtons);
 setupButtons(scientificButtons);
+
+// History functionality
+const historyBtn = document.getElementById('historyBtn');
+const historyModal = document.getElementById('historyModal');
+const historyClose = document.getElementById('historyClose');
+const historyList = document.getElementById('historyList');
+
+function addToHistory(expression, result) {
+  // Only add if it's not an error
+  if (result !== 'Error') {
+    // Add new entry at the beginning with timestamp
+    const timestamp = new Date();
+    calculationHistory.unshift({ expression, result, timestamp });
+    
+    // Keep only the last 5 entries
+    if (calculationHistory.length > 5) {
+      calculationHistory = calculationHistory.slice(0, 5);
+    }
+    
+    // Update history display
+    updateHistoryDisplay();
+  }
+}
+
+function formatTimestamp(timestamp) {
+  const now = new Date();
+  const calcTime = new Date(timestamp);
+  const diffMs = now - calcTime;
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+  
+  if (diffMins < 1) {
+    return 'Just now';
+  } else if (diffMins < 60) {
+    return `${diffMins}m ago`;
+  } else if (diffHours < 24) {
+    return `${diffHours}h ago`;
+  } else if (diffDays < 7) {
+    return `${diffDays}d ago`;
+  } else {
+    // Format as date if older than a week
+    return calcTime.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit'
+    });
+  }
+}
+
+function updateHistoryDisplay() {
+  if (calculationHistory.length === 0) {
+    historyList.innerHTML = '<p class="history-empty">No calculations yet</p>';
+    return;
+  }
+  
+  historyList.innerHTML = calculationHistory.map((calc, index) => {
+    const timestamp = calc.timestamp ? formatTimestamp(calc.timestamp) : 'Unknown';
+    return `
+    <div class="history-item">
+      <div class="history-header-row">
+        <div class="history-expression">${calc.expression}</div>
+        <div class="history-timestamp">${timestamp}</div>
+      </div>
+      <div class="history-result">= ${calc.result}</div>
+    </div>
+    `;
+  }).join('');
+}
+
+// Open history modal
+historyBtn.addEventListener('click', () => {
+  historyModal.style.display = 'flex';
+  updateHistoryDisplay();
+});
+
+// Close history modal
+historyClose.addEventListener('click', () => {
+  historyModal.style.display = 'none';
+});
+
+// Close modal when clicking outside
+historyModal.addEventListener('click', (e) => {
+  if (e.target === historyModal) {
+    historyModal.style.display = 'none';
+  }
+});
