@@ -22,6 +22,8 @@ body {
   gap: 20px;
   width: 100%;
   max-width: 400px;
+  position: relative;
+  overflow: visible;
 }
 
 .title {
@@ -175,19 +177,30 @@ button.clear:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 15px;
   width: 100%;
   position: relative;
 }
 
-/* Flower styles - same size as button font (16px) */
+/* Flower styles - positioned at top left and right, much bigger */
 .flower-left,
 .flower-right {
-  font-size: 16px;
+  position: absolute;
+  top: -60px;
+  font-size: 100px;
   line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.flower-left {
+  left: -120px;
+}
+
+.flower-right {
+  right: -120px;
 }
 
 @media (max-width: 480px) {
@@ -195,13 +208,18 @@ button.clear:hover {
     font-size: 2rem;
   }
   
-  .calculator-wrapper {
-    gap: 10px;
-  }
-  
   .flower-left,
   .flower-right {
-    font-size: 14px; /* Match button font size in mobile */
+    font-size: 60px;
+    top: -40px;
+  }
+  
+  .flower-left {
+    left: -70px;
+  }
+  
+  .flower-right {
+    right: -70px;
   }
   
   #calculator {
