@@ -50,7 +50,6 @@ function setupButtons(buttonContainer) {
           current = '';
           display.value = '';
         } else if (value === 'CE') {
-          // Clear entry - remove last number/operation
           current = current.slice(0, -1);
           display.value = current;
         }
@@ -61,7 +60,7 @@ function setupButtons(buttonContainer) {
           current = result.toString();
           display.value = current;
           
-          // Add to history (store expression and result)
+          // Send calculation to backend (do NOT show in UI)
           addToHistory(expression, result.toString());
         } catch (e) {
           current = 'Error';
@@ -205,94 +204,58 @@ function factorial(n) {
 }
 
 function evaluateExpression(expr) {
-  // Replace ^ with ** for exponentiation
   expr = expr.replace(/\^/g, '**');
-  
-  // Replace √ with Math.sqrt
   expr = expr.replace(/√(\d+\.?\d*)/g, (match, num) => Math.sqrt(parseFloat(num)));
-  
-  // Evaluate the expression
   return Function('"use strict"; return (' + expr + ')')();
 }
 
-// Setup both button containers
 setupButtons(standardButtons);
 setupButtons(scientificButtons);
 
-// History functionality
+// History modal elements
 const historyBtn = document.getElementById('historyBtn');
 const historyModal = document.getElementById('historyModal');
 const historyClose = document.getElementById('historyClose');
 const historyList = document.getElementById('historyList');
 
-function addToHistory(expression, result) {
-  // Only add if it's not an error
-  if (result !== 'Error') {
-    // Add new entry at the beginning with timestamp
-    const timestamp = new Date();
-    calculationHistory.unshift({ expression, result, timestamp });
-    
-    // Keep only the last 5 entries
-    if (calculationHistory.length > 5) {
-      calculationHistory = calculationHistory.slice(0, 5);
-    }
-    
-    // Update history display
-    updateHistoryDisplay();
-  }
-}
+const API_URL = "http://localhost:3001"; // backend URL
 
-function formatTimestamp(timestamp) {
-  const now = new Date();
-  const calcTime = new Date(timestamp);
-  const diffMs = now - calcTime;
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-  
-  if (diffMins < 1) {
-    return 'Just now';
-  } else if (diffMins < 60) {
-    return `${diffMins}m ago`;
-  } else if (diffHours < 24) {
-    return `${diffHours}h ago`;
-  } else if (diffDays < 7) {
-    return `${diffDays}d ago`;
-  } else {
-    // Format as date if older than a week
-    return calcTime.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit'
+async function saveCalculation(expression, result) {
+  try {
+    const response = await fetch(`${API_URL}/calculate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ expression, result })
     });
+    const data = await response.json();
+    console.log("Saved calculation:", data);
+  } catch (err) {
+    console.error("Error saving calculation:", err);
   }
 }
 
-function updateHistoryDisplay() {
-  if (calculationHistory.length === 0) {
-    historyList.innerHTML = '<p class="history-empty">No calculations yet</p>';
-    return;
+async function loadHistory() {
+  try {
+    const response = await fetch(`${API_URL}/calculations`);
+    const history = await response.json();
+    const historyDiv = document.getElementById("history");
+    historyDiv.innerHTML = history.map(c => `<div>${c.expression} = ${c.result}</div>`).join("");
+  } catch (err) {
+    console.error("Error loading history:", err);
   }
-  
-  historyList.innerHTML = calculationHistory.map((calc, index) => {
-    const timestamp = calc.timestamp ? formatTimestamp(calc.timestamp) : 'Unknown';
-    return `
-    <div class="history-item">
-      <div class="history-header-row">
-        <div class="history-expression">${calc.expression}</div>
-        <div class="history-timestamp">${timestamp}</div>
-      </div>
-      <div class="history-result">= ${calc.result}</div>
-    </div>
-    `;
-  }).join('');
+}
+
+// **Updated addToHistory:** only send to backend
+function addToHistory(expression, result) {
+  if (result !== 'Error') {
+    saveCalculation(expression, result);
+  }
 }
 
 // Open history modal
 historyBtn.addEventListener('click', () => {
   historyModal.style.display = 'flex';
-  updateHistoryDisplay();
+  loadHistory(); // only load when modal opens
 });
 
 // Close history modal
